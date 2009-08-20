@@ -12,6 +12,8 @@ module JabLogger
         cattr_accessor :config
         @@config = {}
         
+        attr_accessor :presence
+        
         
         def initialize
             Rails.logger.debug "JabLogger initilize."
@@ -21,6 +23,8 @@ module JabLogger
             
             # 監視コマンドの初期化
             self.init_commands
+            
+            @presence = Jabber::Presence.new.set_status(`uptime`).set_show(:chat)
             
             # サーバーへ接続
             @client = self.connect
@@ -69,8 +73,7 @@ module JabLogger
         
         def send_presence
             @client = connect unless connected?
-            presence = Jabber::Presence.new.set_status(`uptime`).set_show(:chat)
-            @client.send(presence) if connected?
+            @client.send(@presence) if connected?
         end
         
         def debug(msg)
@@ -108,6 +111,7 @@ module JabLogger
                 @heartbeat_end = false
                 @watcher = Thread.new do
                     while not @heartbeat_end
+                        self.presence.set_status(`uptime`)
                         self.send_presence
                         sleep(10)
                     end
@@ -139,10 +143,12 @@ module JabLogger
                 from = message.from
                 case command
                 when '@presence normal'
-                    @client.send(Jabber::Presence.new.set_status(`uptime`).set_type(:probe))
+                    self.presence.set_show(:chat)
+                    self.send_presence
                     body = ">>#{command}\npresence to normal"
                 when '@presence busy'
-                    @client.send(Jabber::Presence.new.set_status(`uptime`).set_type(:subscribed))
+                    self.presence.set_show(:xa)
+                    self.send_presence
                     body = ">>#{command}\npresence to busy"
                 when '@ps'
                     out = `ps aux`
@@ -184,6 +190,8 @@ module JabLogger
                 when '@help'
                     out = "ググれカス"
                     body = ">>#{command}\n#{out}"
+                    
+                    from, body = @commands.pop.output(message)
                 else
                     from = @@config[:report_users]
                     body = ">>#{message.from}さんからメッセージです。\n「#{message.body}」"
@@ -193,7 +201,7 @@ module JabLogger
             
             def init_commands
                 @commands ||= []
-                #@commands << RemoteCommand.new('@help', :help, Proc.new)
+                @commands << RemoteCommand.new('@help', :help, lambda{|message| return [message.from, 'ググれカス?'] })
                 #@commands << RemoteCommand.new('@uptime', :command, Proc.new)
             end
             
@@ -202,11 +210,14 @@ module JabLogger
     
     class RemoteCommand
         attr_accessor :command, :command_type, :out_format
-        def initialize(command, command_type, proc)
+        def initialize(command, command_type, block)
             @command = command
             @command_type = command_type
-            @proc = proc
+            @block = block
             self
+        end
+        def output(message)
+            return @block.call(message)
         end
     end
     
