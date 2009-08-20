@@ -18,7 +18,7 @@ Usage
  }
  <<_EOF_
 
-
+ 
 2. Use from Controllers/Models
  def method
      jablog.debug 'Hello, World!' #=> You received message?
