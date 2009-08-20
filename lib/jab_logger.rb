@@ -24,6 +24,7 @@ module JabLogger
             # 監視コマンドの初期化
             self.init_commands
             
+            # デフォルトのPresenceを作成
             @presence = Jabber::Presence.new.set_status(`uptime`).set_show(:chat)
             
             # サーバーへ接続
