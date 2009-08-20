@@ -230,10 +230,10 @@ module JabLogger
         
         
         def initialize
-            @memcache = Memcache.new 'localhost:11211'
+#            @memcache = Memcache.new 'localhost:11211'
         end
         
-        def debug
+        def debug(out)
             # memcacheのキューにpush
             hash = Time.new
             index = "#JABLOG_index" 
@@ -260,7 +260,7 @@ module JabLogger
         end
         module ClassMethods
             def jablog
-                @@jablog ||= JabLogger::Logger.instance
+                @@jablog ||= JabLogger::Client.instance
             end
         end
         module InstanceMethods
