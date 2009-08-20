@@ -187,7 +187,7 @@ module JabLogger
                     body = ">>#{command}\n#{out}"
                 when '@app restart'
                     out = `touch tmp/restart.txt`
-                    out = `wget --spider http://admin.nitro-core.jp/remote_restart`
+                    out = `wget --spider http://yoursites/remote_restart`
                     body = ">>#{command}\n#{out}"
                 when '@rake routes'
                     out = `rake routes`
