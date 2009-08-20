@@ -1,13 +1,37 @@
 JabLogger
 =========
 
-Introduction goes here.
+Rails Logger with Jabber.
 
 
-Example
+Usage
 =======
 
-Example goes here.
+1. Make conf
+ config/initializers/jab_logger.rb >>_EOF_
+ JabLogger::Client.config = {
+     :login => 'yourname@jabber-server',
+     :password => 'yourpassword',
+     :server => 'jabber-server' # ex<='talk.google.com',
+     :server_port => 5222,
+     :report_users => 'youradmin@jabber-server'
+ }
+ <<_EOF_
 
 
-Copyright (c) 2009 [name of plugin creator], released under the MIT license
+2. Use from Controllers/Models
+ def method
+     jablog.debug 'Hello, World!' #=> You received message?
+ end
+
+
+3. Remote Commands[CAUTION!]
+commands:
+ @top
+ @free
+ @app about
+ @app resatrt
+ ... &more
+
+
+Copyright (c) 2009 ogasyo, released under the MIT license

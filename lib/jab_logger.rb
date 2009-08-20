@@ -147,6 +147,10 @@ module JabLogger
                     self.send_presence
                     body = ">>#{command}\npresence to normal"
                 when '@presence busy'
+                    self.presence.set_show(:dnd)
+                    self.send_presence
+                    body = ">>#{command}\npresence to busy"
+                when '@presence away'
                     self.presence.set_show(:xa)
                     self.send_presence
                     body = ">>#{command}\npresence to busy"
